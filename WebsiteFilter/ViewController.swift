@@ -11,50 +11,83 @@ import WebKit
 
 class ViewController: UIViewController {
     let bottomView = BottomView()
-    let inputTextField = UITextField()
+    let linkTextField = UITextField()
     let webView = WKWebView()
+    let errorLabel = UILabel()
+    let errorSublabel = UILabel()
+    let progressView = UIProgressView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .navigationBarColor
-        navigationController?.navigationBar.backgroundColor = .navigationBarColor
+        view.backgroundColor = .navigationBarBackground
+        navigationController?.navigationBar.backgroundColor = .navigationBarBackground
         bottomView.layout(in: self.view)
-        setUpInputTextField()
+        setUpLinkTextField()
+        setUpErrorStackView()
         setUpWebView()
+        addButtonsTarget()
+        setUpProgressView()
     }
     
-    private func setUpInputTextField() {
-        navigationItem.titleView = inputTextField
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        view.endEditing(true)
+    }
+    
+    override func observeValue(forKeyPath keyPath: String?,
+                               of object: Any?,
+                               change: [NSKeyValueChangeKey : Any]?,
+                               context: UnsafeMutableRawPointer?) {
+        if keyPath == "estimatedProgress" {
+            progressView.progress = Float(webView.estimatedProgress)
+        }
+    }
+    
+    @objc func didTapBackButton() {
+        webView.goBack()
+    }
+    
+    @objc func didTapForwardkButton() {
+        webView.goForward()
+    }
+    
+    private func setUpLinkTextField() {
+        navigationItem.titleView = linkTextField
         
-        inputTextField.textColor = UIColor.black
-        inputTextField.backgroundColor = UIColor.textFieldBackground
-        inputTextField.placeholder = "Search or enter website"
+        linkTextField.textColor = UIColor.black
+        linkTextField.backgroundColor = UIColor.textFieldBackground
+        linkTextField.placeholder = "Search or enter website"
         
         let magnifyingGlassImageView = UIImageView(image: UIImage(named: "magnifyingglass"))
         magnifyingGlassImageView.contentMode = .scaleAspectFit
         magnifyingGlassImageView.tintColor = .darkGray
         magnifyingGlassImageView.frame = CGRect(x: 8, y: -8, width: 16, height: 16)
         
-        inputTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 32, height: inputTextField.frame.size.height))
-        inputTextField.leftView?.addSubview(magnifyingGlassImageView)
-        inputTextField.leftViewMode = .always
-        inputTextField.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: inputTextField.frame.size.height))
-        inputTextField.rightViewMode = .unlessEditing
-        inputTextField.layer.cornerRadius = 10
-        inputTextField.borderStyle = .none
-        inputTextField.autocorrectionType = .no
-        inputTextField.autocapitalizationType = .none
-        inputTextField.clearButtonMode = .whileEditing
+        linkTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 32, height: linkTextField.frame.size.height))
+        linkTextField.leftView?.addSubview(magnifyingGlassImageView)
+        linkTextField.leftViewMode = .always
+        linkTextField.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: linkTextField.frame.size.height))
+        linkTextField.rightViewMode = .unlessEditing
+        linkTextField.layer.cornerRadius = 10
+        linkTextField.borderStyle = .none
+        linkTextField.autocorrectionType = .no
+        linkTextField.autocapitalizationType = .none
+        linkTextField.clearButtonMode = .whileEditing
         
-        inputTextField.delegate = self
+        linkTextField.delegate = self
         
-        inputTextField.snp.makeConstraints({ make in
+        linkTextField.snp.makeConstraints({ make in
             make.width.equalTo(view.frame.width - 32)
             make.height.equalTo(40)
         })
     }
     
     private func setUpWebView() {
+        webView.navigationDelegate = self
+        webView.addObserver(self,
+                            forKeyPath: #keyPath(WKWebView.estimatedProgress),
+                            options: .new,
+                            context: nil)
         view.addSubview(webView)
         webView.snp.makeConstraints { make in
             make.leading.equalToSuperview()
@@ -64,22 +97,137 @@ class ViewController: UIViewController {
             }
             make.bottom.equalTo(bottomView.snp_firstBaseline)
         }
-        guard let url = URL(string: "https://www.google.com") else { return }
+        
+        guard let url = URL(string: "https://www.google.com/") else { return }
         let request = URLRequest(url: url)
         
+        linkTextField.text = url.absoluteString
         webView.load(request)
+    }
+    
+    private func setUpErrorStackView() {
+        guard let safeAreaBottomInset = (UIApplication.shared.delegate as? AppDelegate)?.window?.safeAreaInsets.bottom else { return }
+        let stackView = UIStackView(arrangedSubviews: [errorLabel,
+                                                       errorSublabel])
+        stackView.axis = .vertical
+        stackView.spacing = 8
+        
+        errorLabel.font = UIFont.systemFont(ofSize: 24, weight: .heavy)
+        [errorLabel, errorSublabel].forEach { label in
+            label.numberOfLines = 0
+            label.textColor = .errorLabel
+            label.textAlignment = .center
+        }
+        
+        view.addSubview(stackView)
+        stackView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().offset(-16)
+            make.centerY.equalToSuperview().offset(safeAreaBottomInset - bottomView.frame.height)
+            
+        }
+    }
+    
+    private func addButtonsTarget() {
+        bottomView.backButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
+        bottomView.forwardButton.addTarget(self, action: #selector(didTapForwardkButton), for: .touchUpInside)
+    }
+    
+    private func setUpProgressView() {
+        linkTextField.addSubview(progressView)
+        progressView.snp.makeConstraints { make in
+            make.top.equalTo(linkTextField.snp_bottomMargin).offset(5)
+            make.leading.equalTo(linkTextField.snp_leadingMargin).offset(-2.5)
+            make.trailing.equalTo(linkTextField.snp_trailingMargin).offset(2.5)
+            make.height.equalTo(2)
+        }
+    }
+    
+    private func showProgressView() {
+        UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseInOut) {
+            self.progressView.alpha = 1
+        }
+    }
+    
+    private func hideProgressView() {
+        UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut) {
+            self.progressView.alpha = 0
+        }
+    }
+    
+    private func updateWebViewNavigationButtonsState() {
+        if webView.canGoBack {
+            bottomView.backButton.isEnabled = true
+        } else {
+            bottomView.backButton.isEnabled = false
+        }
+        
+        if webView.canGoForward {
+            bottomView.forwardButton.isEnabled = true
+        } else {
+            bottomView.forwardButton.isEnabled = false
+        }
     }
 }
 
 extension ViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        guard let textFieldText = textField.text,
-              let url = URL(string: textFieldText)
-        else { return false }
-        let request = URLRequest(url: url)
+        guard let textFieldText = textField.text else { return true }
+        let urlString = textFieldText.contains("://") ? textFieldText : "https://\(textFieldText)"
+        guard let url = URL(string: urlString) else { return true }
+        let urlRequest = URLRequest(url: url)
+        
         textField.resignFirstResponder()
-        webView.load(request)
+        webView.load(urlRequest)
         return true
     }
 }
 
+extension ViewController: WKNavigationDelegate {
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        showProgressView()
+    }
+    
+    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        linkTextField.text = webView.url?.absoluteString
+        updateWebViewNavigationButtonsState()
+    }
+    
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        webView.isHidden = false
+        hideProgressView()
+    }
+
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        webView.isHidden = true
+        updateWebViewNavigationButtonsState()
+        hideProgressView()
+        guard let failingURLString = (error as NSError).userInfo["NSErrorFailingURLStringKey"] as? String else { return }
+        let hostname: String
+        
+        if #available(iOS 16.0, *) {
+            if let urlHost = URL(string: failingURLString)?.host() {
+                hostname = urlHost
+            } else {
+                hostname = ""
+            }
+        } else {
+            let separatedStringsArray = failingURLString.components(separatedBy: "//")
+            let protocolSeparatedURLString = separatedStringsArray.count >= 2 ? separatedStringsArray[1] : separatedStringsArray[0]
+            hostname = protocolSeparatedURLString.components(separatedBy: "/")[0]
+        }
+        
+        if (error as NSError).code == -1003 {
+            errorLabel.text = "Can't Find The Server"
+            errorSublabel.text = #"A server with "\#(hostname)" hostname could not be found."#
+        } else {
+            errorLabel.text = "Something went wrong"
+            errorSublabel.text = "Unable to open the page"
+        }
+    }
+    
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        hideProgressView()
+        updateWebViewNavigationButtonsState()
+    }
+}

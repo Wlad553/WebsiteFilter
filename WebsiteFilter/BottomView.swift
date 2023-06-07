@@ -27,7 +27,7 @@ class BottomView: UIView {
         
         layer.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1).cgColor
 
-        let safeAreaBottomInset: CGFloat! = (UIApplication.shared.delegate as? AppDelegate)?.window?.safeAreaInsets.bottom
+        guard let safeAreaBottomInset = (UIApplication.shared.delegate as? AppDelegate)?.window?.safeAreaInsets.bottom else { return }
         let bottomViewHeight = safeAreaBottomInset > 0 ? 60 : 45
         
         snp.makeConstraints { make in
@@ -43,6 +43,8 @@ class BottomView: UIView {
         forwardButton.setImage(UIImage(named: "chevron.right"), for: .normal)
         addFilterButton.setImage(UIImage(named: "plus.app"), for: .normal)
         showFiltersButton.setImage(UIImage(named: "list.bullet.circle"), for: .normal)
+        backButton.isEnabled = false
+        forwardButton.isEnabled = false
         buttons.forEach { button in
             button.imageView?.contentMode = .scaleAspectFit
             button.tintColor = .black
