@@ -9,7 +9,9 @@ import UIKit
 import SnapKit
 import WebKit
 
-class ViewController: UIViewController {
+final class MainViewController: UIViewController {
+    weak var delegate: ViewControllerDelegate?
+    
     let bottomView = BottomView()
     let linkTextField = UITextField()
     let webView = WKWebView()
@@ -21,7 +23,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .navigationBarBackground
         navigationController?.navigationBar.backgroundColor = .navigationBarBackground
-        bottomView.layout(in: self.view)
+        bottomView.layout(in: view)
         setUpLinkTextField()
         setUpErrorStackView()
         setUpWebView()
@@ -49,6 +51,58 @@ class ViewController: UIViewController {
     
     @objc func didTapForwardkButton() {
         webView.goForward()
+    }
+    
+    @objc func didTapAddFilterButton() {
+        enum RestrictedCharacters: String {
+            case whitespace = " "
+        }
+        
+        let alertController = UIAlertController(title: "Add Filter", message: "Type a filter word to be blocked", preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "Cancel", style: .default)
+        let addAction = UIAlertAction(title: "Add", style: .destructive) { action in
+            guard let textFieldText = alertController.textFields?.first?.text,
+                  textFieldText.count >= 2 && !textFieldText.contains(RestrictedCharacters.whitespace.rawValue)
+            else { return }
+            if var filtersArray = UserDefaults.standard.array(forKey: UserDefaultsKeys.filtersArray.rawValue) as? [String] {
+                filtersArray.insert(textFieldText, at: 0)
+                UserDefaults.standard.set(filtersArray, forKey: UserDefaultsKeys.filtersArray.rawValue)
+            } else {
+                UserDefaults.standard.set([textFieldText], forKey: UserDefaultsKeys.filtersArray.rawValue)
+            }
+        }
+        
+        alertController.addTextField { textField in
+            textField.placeholder = "Type a filter word"
+        }
+        alertController.addAction(cancelAction)
+        alertController.addAction(addAction)
+        present(alertController, animated: true)
+    }
+    
+    @objc func didTapShowFiltersButton() {
+        delegate?.navigateToFilterListTableViewController()
+    }
+    
+    func updateWebViewNavigationButtonsState() {
+        if webView.canGoBack {
+            bottomView.backButton.isEnabled = true
+        } else {
+            bottomView.backButton.isEnabled = false
+        }
+        
+        if webView.canGoForward {
+            bottomView.forwardButton.isEnabled = true
+        } else {
+            bottomView.forwardButton.isEnabled = false
+        }
+    }
+    
+    func presentOKAlertController(withTitle title: String, message: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Ok", style: .default)
+        alertController.addAction(okAction)
+        present(alertController, animated: true)
     }
     
     private func setUpLinkTextField() {
@@ -101,7 +155,6 @@ class ViewController: UIViewController {
         guard let url = URL(string: "https://www.google.com/") else { return }
         let request = URLRequest(url: url)
         
-        linkTextField.text = url.absoluteString
         webView.load(request)
     }
     
@@ -131,6 +184,8 @@ class ViewController: UIViewController {
     private func addButtonsTarget() {
         bottomView.backButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
         bottomView.forwardButton.addTarget(self, action: #selector(didTapForwardkButton), for: .touchUpInside)
+        bottomView.addFilterButton.addTarget(self, action: #selector(didTapAddFilterButton), for: .touchUpInside)
+        bottomView.showFiltersButton.addTarget(self, action: #selector(didTapShowFiltersButton), for: .touchUpInside)
     }
     
     private func setUpProgressView() {
@@ -154,26 +209,27 @@ class ViewController: UIViewController {
             self.progressView.alpha = 0
         }
     }
-    
-    private func updateWebViewNavigationButtonsState() {
-        if webView.canGoBack {
-            bottomView.backButton.isEnabled = true
-        } else {
-            bottomView.backButton.isEnabled = false
-        }
-        
-        if webView.canGoForward {
-            bottomView.forwardButton.isEnabled = true
-        } else {
-            bottomView.forwardButton.isEnabled = false
-        }
-    }
 }
 
-extension ViewController: UITextFieldDelegate {
+// MARK: UITextFieldDelegate
+extension MainViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        guard let textFieldText = textField.text else { return true }
-        let urlString = textFieldText.contains("://") ? textFieldText : "https://\(textFieldText)"
+        guard let textFieldText = textField.text,
+              !textFieldText.isEmpty
+        else { return true }
+        let urlString: String
+        
+        if textFieldText.contains("://") {
+            // if user pasted a link cantaining http or https
+            urlString = textFieldText
+        } else if textFieldText.contains(".") {
+            // if user types a website link without protocol
+            urlString = "https://\(textFieldText)"
+        } else {
+            // if user wants to search
+            urlString = "https://www.google.com/search?q=\(textFieldText.replacingOccurrences(of: " ", with: "+"))"
+        }
+        
         guard let url = URL(string: urlString) else { return true }
         let urlRequest = URLRequest(url: url)
         
@@ -183,13 +239,33 @@ extension ViewController: UITextFieldDelegate {
     }
 }
 
-extension ViewController: WKNavigationDelegate {
+// MARK: WKNavigationDelegate
+extension MainViewController: WKNavigationDelegate {
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if let filtersArray = UserDefaults.standard.value(forKey: UserDefaultsKeys.filtersArray.rawValue) as? [String] {
+            guard let urlString = navigationAction.request.url?.absoluteString else {
+                decisionHandler(.cancel)
+                hideProgressView()
+                return
+            }
+            for filterString in filtersArray {
+                if urlString.contains(filterString) {
+                    presentOKAlertController(withTitle: "This page is blocked", message: "Current URL didn't pass filters list requirements")
+                    decisionHandler(.cancel)
+                    hideProgressView()
+                    return
+                }
+            }
+            decisionHandler(.allow)
+        }
+    }
+    
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        linkTextField.text = webView.url?.absoluteString
         showProgressView()
     }
     
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
-        linkTextField.text = webView.url?.absoluteString
         updateWebViewNavigationButtonsState()
     }
     

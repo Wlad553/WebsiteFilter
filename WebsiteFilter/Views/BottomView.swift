@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class BottomView: UIView {
+final class BottomView: UIView {
     let backButton = UIButton(type: .system)
     let forwardButton = UIButton(type: .system)
     let addFilterButton = UIButton(type: .system)

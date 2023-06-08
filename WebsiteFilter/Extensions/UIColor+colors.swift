@@ -1,5 +1,5 @@
 //
-//  Extensions.swift
+//  UIColor+colors.swift
 //  WebsiteFilter
 //
 //  Created by Vladyslav Petrenko on 06/06/2023.
