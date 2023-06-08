@@ -73,6 +73,8 @@ final class MainViewController: UIViewController {
         }
         
         alertController.addTextField { textField in
+            textField.autocorrectionType = .no
+            textField.autocapitalizationType = .none
             textField.placeholder = "Type a filter word"
         }
         alertController.addAction(cancelAction)
@@ -242,22 +244,24 @@ extension MainViewController: UITextFieldDelegate {
 // MARK: WKNavigationDelegate
 extension MainViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        if let filtersArray = UserDefaults.standard.value(forKey: UserDefaultsKeys.filtersArray.rawValue) as? [String] {
-            guard let urlString = navigationAction.request.url?.absoluteString else {
+        guard let filtersArray = UserDefaults.standard.value(forKey: UserDefaultsKeys.filtersArray.rawValue) as? [String] else {
+            decisionHandler(.allow)
+            return
+        }
+        guard let urlString = navigationAction.request.url?.absoluteString else {
+            decisionHandler(.cancel)
+            hideProgressView()
+            return
+        }
+        for filterString in filtersArray {
+            if urlString.contains(filterString) {
+                presentOKAlertController(withTitle: "This page is blocked", message: "Current URL didn't pass filters list requirements")
                 decisionHandler(.cancel)
                 hideProgressView()
                 return
             }
-            for filterString in filtersArray {
-                if urlString.contains(filterString) {
-                    presentOKAlertController(withTitle: "This page is blocked", message: "Current URL didn't pass filters list requirements")
-                    decisionHandler(.cancel)
-                    hideProgressView()
-                    return
-                }
-            }
-            decisionHandler(.allow)
         }
+        decisionHandler(.allow)
     }
     
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
