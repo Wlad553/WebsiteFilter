@@ -9,14 +9,7 @@ import UIKit
 
 final class FilterListTableViewController: UITableViewController {
     weak var delegate: ViewControllerDelegate?
-    
-    var filtersArray: [String] {
-        var filtersArray: [String] = []
-        if let userDefaultsArray = UserDefaults.standard.array(forKey: UserDefaultsKeys.filtersArray.rawValue) as? [String] {
-            filtersArray = userDefaultsArray
-        }
-        return filtersArray
-    }
+    let userDefaultsManager: UserDefaultsStorage = UserDefaultsManager()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,29 +34,27 @@ extension FilterListTableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filtersArray.count
+        return userDefaultsManager.filtersArray.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
         if #available(iOS 14.0, *) {
             var configuration = cell.defaultContentConfiguration()
-            configuration.text = filtersArray[indexPath.row]
+            configuration.text = userDefaultsManager.filtersArray[indexPath.row]
             cell.contentConfiguration = configuration
         } else {
-            cell.textLabel?.text = filtersArray[indexPath.row]
+            cell.textLabel?.text = userDefaultsManager.filtersArray[indexPath.row]
         }
         return cell
     }
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            var newFiltersArray = filtersArray
-            newFiltersArray.remove(at: indexPath.row)
-            UserDefaults.standard.set(newFiltersArray, forKey: UserDefaultsKeys.filtersArray.rawValue)
+            userDefaultsManager.remove(filterAt: indexPath)
             tableView.deleteRows(at: [indexPath], with: .fade)
             
-            if newFiltersArray.isEmpty {
+            if userDefaultsManager.filtersArray.isEmpty {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                     self.delegate?.navigateBackToMainViewController()
                 }

@@ -11,6 +11,7 @@ import WebKit
 
 final class MainViewController: UIViewController {
     weak var delegate: ViewControllerDelegate?
+    let userDefaultsManager: UserDefaultsStorage = UserDefaultsManager()
     
     let bottomView = BottomView()
     let linkTextField = UITextField()
@@ -54,29 +55,21 @@ final class MainViewController: UIViewController {
     }
     
     @objc func didTapAddFilterButton() {
-        enum RestrictedCharacters: String {
-            case whitespace = " "
-        }
-        
         let alertController = UIAlertController(title: "Add Filter", message: "Type a filter word to be blocked", preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: "Cancel", style: .default)
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         let addAction = UIAlertAction(title: "Add", style: .destructive) { action in
-            guard let textFieldText = alertController.textFields?.first?.text,
-                  textFieldText.count >= 2 && !textFieldText.contains(RestrictedCharacters.whitespace.rawValue)
-            else { return }
-            if var filtersArray = UserDefaults.standard.array(forKey: UserDefaultsKeys.filtersArray.rawValue) as? [String] {
-                filtersArray.insert(textFieldText, at: 0)
-                UserDefaults.standard.set(filtersArray, forKey: UserDefaultsKeys.filtersArray.rawValue)
-            } else {
-                UserDefaults.standard.set([textFieldText], forKey: UserDefaultsKeys.filtersArray.rawValue)
-            }
+            guard let textFieldText = alertController.textFields?.first?.text else { return }
+            self.userDefaultsManager.insert(filter: textFieldText)
         }
+        addAction.isEnabled = false
         
         alertController.addTextField { textField in
             textField.autocorrectionType = .no
             textField.autocapitalizationType = .none
             textField.placeholder = "Type a filter word"
+            textField.delegate = self
         }
+        
         alertController.addAction(cancelAction)
         alertController.addAction(addAction)
         present(alertController, animated: true)
@@ -146,8 +139,7 @@ final class MainViewController: UIViewController {
                             context: nil)
         view.addSubview(webView)
         webView.snp.makeConstraints { make in
-            make.leading.equalToSuperview()
-            make.trailing.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
             make.top.equalToSuperview { constraintView in
                 constraintView.safeAreaLayoutGuide
             }
@@ -215,6 +207,26 @@ final class MainViewController: UIViewController {
 
 // MARK: UITextFieldDelegate
 extension MainViewController: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        enum RestrictedCharacters: String {
+            case whitespace = " "
+        }
+        
+        guard let newTextFieldText = (textField.text as? NSString)?.replacingCharacters(in: range, with: string),
+              let alertAddAction = (presentedViewController as? UIAlertController)?.actions.first(where: { action in
+                  action.title == "Add"
+              })
+        else { return true }
+        
+        if newTextFieldText.contains(RestrictedCharacters.whitespace.rawValue) || newTextFieldText.count < 2 || userDefaultsManager.filtersArray.contains(newTextFieldText) {
+            alertAddAction.isEnabled = false
+        } else {
+            alertAddAction.isEnabled = true
+        }
+        
+        return true
+    }
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         guard let textFieldText = textField.text,
               !textFieldText.isEmpty
@@ -244,17 +256,13 @@ extension MainViewController: UITextFieldDelegate {
 // MARK: WKNavigationDelegate
 extension MainViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        guard let filtersArray = UserDefaults.standard.value(forKey: UserDefaultsKeys.filtersArray.rawValue) as? [String] else {
-            decisionHandler(.allow)
-            return
-        }
         guard let urlString = navigationAction.request.url?.absoluteString else {
             decisionHandler(.cancel)
             hideProgressView()
             return
         }
-        for filterString in filtersArray {
-            if urlString.contains(filterString) {
+        for filterString in userDefaultsManager.filtersArray {
+            if urlString.lowercased().contains(filterString.lowercased()) {
                 presentOKAlertController(withTitle: "This page is blocked", message: "Current URL didn't pass filters list requirements")
                 decisionHandler(.cancel)
                 hideProgressView()

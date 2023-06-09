@@ -31,9 +31,7 @@ final class BottomView: UIView {
         let bottomViewHeight = safeAreaBottomInset > 0 ? 60 : 45
         
         snp.makeConstraints { make in
-            make.bottom.equalToSuperview()
-            make.leading.equalToSuperview()
-            make.trailing.equalToSuperview()
+            make.leading.trailing.bottom.equalToSuperview()
             make.height.equalTo(bottomViewHeight)
         }
     }

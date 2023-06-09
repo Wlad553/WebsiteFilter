@@ -12,6 +12,8 @@
 		F52BCA292A31FF37009CBCA7 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52BCA282A31FF37009CBCA7 /* Coordinator.swift */; };
 		F52BCA2B2A32008E009CBCA7 /* ViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52BCA2A2A32008E009CBCA7 /* ViewControllerDelegate.swift */; };
 		F52BCA332A32175D009CBCA7 /* UserDefaultsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52BCA322A32175D009CBCA7 /* UserDefaultsKeys.swift */; };
+		F52E71562A333DCD00AEF9D9 /* UserDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52E71552A333DCD00AEF9D9 /* UserDefaultsManager.swift */; };
+		F52E715A2A33501000AEF9D9 /* UserDefaultsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52E71592A33501000AEF9D9 /* UserDefaultsStorage.swift */; };
 		F532FF882A2E235100C89C55 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F532FF872A2E235100C89C55 /* AppDelegate.swift */; };
 		F532FF8C2A2E235100C89C55 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F532FF8B2A2E235100C89C55 /* MainViewController.swift */; };
 		F532FF912A2E235200C89C55 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F532FF902A2E235200C89C55 /* Assets.xcassets */; };
@@ -29,6 +31,8 @@
 		F52BCA282A31FF37009CBCA7 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
 		F52BCA2A2A32008E009CBCA7 /* ViewControllerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerDelegate.swift; sourceTree = "<group>"; };
 		F52BCA322A32175D009CBCA7 /* UserDefaultsKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsKeys.swift; sourceTree = "<group>"; };
+		F52E71552A333DCD00AEF9D9 /* UserDefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsManager.swift; sourceTree = "<group>"; };
+		F52E71592A33501000AEF9D9 /* UserDefaultsStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsStorage.swift; sourceTree = "<group>"; };
 		F532FF872A2E235100C89C55 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F532FF8B2A2E235100C89C55 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		F532FF902A2E235200C89C55 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -121,6 +125,23 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		F52E71542A333DB300AEF9D9 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F52E71552A333DCD00AEF9D9 /* UserDefaultsManager.swift */,
+				F52E715B2A33501400AEF9D9 /* Protocols */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		F52E715B2A33501400AEF9D9 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				F52E71592A33501000AEF9D9 /* UserDefaultsStorage.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
 		F532FF7B2A2E235100C89C55 = {
 			isa = PBXGroup;
 			children = (
@@ -135,6 +156,7 @@
 			isa = PBXGroup;
 			children = (
 				F532FF872A2E235100C89C55 /* AppDelegate.swift */,
+				F52E71542A333DB300AEF9D9 /* Models */,
 				F52BCA2D2A32095B009CBCA7 /* Views */,
 				F52BCA2C2A32094F009CBCA7 /* Controllers */,
 				F52BCA302A320AC7009CBCA7 /* Coordinator */,
@@ -266,8 +288,10 @@
 				F532FF9E2A2E32BA00C89C55 /* BottomView.swift in Sources */,
 				F52BCA332A32175D009CBCA7 /* UserDefaultsKeys.swift in Sources */,
 				F532FF8C2A2E235100C89C55 /* MainViewController.swift in Sources */,
+				F52E71562A333DCD00AEF9D9 /* UserDefaultsManager.swift in Sources */,
 				F532FF882A2E235100C89C55 /* AppDelegate.swift in Sources */,
 				F539ED7B2A2F991A00C01513 /* UIColor+colors.swift in Sources */,
+				F52E715A2A33501000AEF9D9 /* UserDefaultsStorage.swift in Sources */,
 				F52BCA292A31FF37009CBCA7 /* Coordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

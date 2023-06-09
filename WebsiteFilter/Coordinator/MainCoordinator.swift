@@ -31,7 +31,7 @@ extension MainCoordinator: ViewControllerDelegate {
             destinationViewController = FilterListTableViewController()
         }
         destinationViewController.delegate = self
-        if destinationViewController.filtersArray.isEmpty {
+        if destinationViewController.userDefaultsManager.filtersArray.isEmpty {
             (navigationController.visibleViewController as? MainViewController)?.presentOKAlertController(withTitle: "No Filters",
                                                                                                           message: "The filter list is empty")
         } else {
