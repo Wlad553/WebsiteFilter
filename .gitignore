@@ -132,3 +132,66 @@ iOSInjectionProject/
 **/xcshareddata/WorkspaceSettings.xcsettings
 
 # End of https://www.toptal.com/developers/gitignore/api/swift,macos,xcode
+Pods/Manifest.lock
+Pods/Pods.xcodeproj/project.pbxproj
+Pods/SnapKit/LICENSE
+Pods/SnapKit/README.md
+Pods/SnapKit/Sources/Constraint.swift
+Pods/SnapKit/Sources/ConstraintAttributes.swift
+Pods/SnapKit/Sources/ConstraintConfig.swift
+Pods/SnapKit/Sources/ConstraintConstantTarget.swift
+Pods/SnapKit/Sources/ConstraintDescription.swift
+Pods/SnapKit/Sources/ConstraintDirectionalInsets.swift
+Pods/SnapKit/Sources/ConstraintDirectionalInsetTarget.swift
+Pods/SnapKit/Sources/ConstraintDSL.swift
+Pods/SnapKit/Sources/ConstraintInsets.swift
+Pods/SnapKit/Sources/ConstraintInsetTarget.swift
+Pods/SnapKit/Sources/ConstraintItem.swift
+Pods/SnapKit/Sources/ConstraintLayoutGuide+Extensions.swift
+Pods/SnapKit/Sources/ConstraintLayoutGuide.swift
+Pods/SnapKit/Sources/ConstraintLayoutGuideDSL.swift
+Pods/SnapKit/Sources/ConstraintLayoutSupport.swift
+Pods/SnapKit/Sources/ConstraintLayoutSupportDSL.swift
+Pods/SnapKit/Sources/ConstraintMaker.swift
+Pods/SnapKit/Sources/ConstraintMakerEditable.swift
+Pods/SnapKit/Sources/ConstraintMakerExtendable.swift
+Pods/SnapKit/Sources/ConstraintMakerFinalizable.swift
+Pods/SnapKit/Sources/ConstraintMakerPrioritizable.swift
+Pods/SnapKit/Sources/ConstraintMakerRelatable+Extensions.swift
+Pods/SnapKit/Sources/ConstraintMakerRelatable.swift
+Pods/SnapKit/Sources/ConstraintMultiplierTarget.swift
+Pods/SnapKit/Sources/ConstraintOffsetTarget.swift
+Pods/SnapKit/Sources/ConstraintPriority.swift
+Pods/SnapKit/Sources/ConstraintPriorityTarget.swift
+Pods/SnapKit/Sources/ConstraintRelatableTarget.swift
+Pods/SnapKit/Sources/ConstraintRelation.swift
+Pods/SnapKit/Sources/ConstraintView+Extensions.swift
+Pods/SnapKit/Sources/ConstraintView.swift
+Pods/SnapKit/Sources/ConstraintViewDSL.swift
+Pods/SnapKit/Sources/Debugging.swift
+Pods/SnapKit/Sources/LayoutConstraint.swift
+Pods/SnapKit/Sources/LayoutConstraintItem.swift
+Pods/SnapKit/Sources/Typealiases.swift
+Pods/SnapKit/Sources/UILayoutSupport+Extensions.swift
+Pods/Target Support Files/Pods-WebsiteFilter/Pods-WebsiteFilter-acknowledgements.markdown
+Pods/Target Support Files/Pods-WebsiteFilter/Pods-WebsiteFilter-acknowledgements.plist
+Pods/Target Support Files/Pods-WebsiteFilter/Pods-WebsiteFilter-dummy.m
+Pods/Target Support Files/Pods-WebsiteFilter/Pods-WebsiteFilter-frameworks-Debug-input-files.xcfilelist
+Pods/Target Support Files/Pods-WebsiteFilter/Pods-WebsiteFilter-frameworks-Debug-output-files.xcfilelist
+Pods/Target Support Files/Pods-WebsiteFilter/Pods-WebsiteFilter-frameworks-Release-input-files.xcfilelist
+Pods/Target Support Files/Pods-WebsiteFilter/Pods-WebsiteFilter-frameworks-Release-output-files.xcfilelist
+Pods/Target Support Files/Pods-WebsiteFilter/Pods-WebsiteFilter-frameworks.sh
+Pods/Target Support Files/Pods-WebsiteFilter/Pods-WebsiteFilter-Info.plist
+Pods/Target Support Files/Pods-WebsiteFilter/Pods-WebsiteFilter-umbrella.h
+Pods/Target Support Files/Pods-WebsiteFilter/Pods-WebsiteFilter.debug.xcconfig
+Pods/Target Support Files/Pods-WebsiteFilter/Pods-WebsiteFilter.modulemap
+Pods/Target Support Files/Pods-WebsiteFilter/Pods-WebsiteFilter.release.xcconfig
+Pods/Target Support Files/SnapKit/SnapKit-dummy.m
+Pods/Target Support Files/SnapKit/SnapKit-Info.plist
+Pods/Target Support Files/SnapKit/SnapKit-prefix.pch
+Pods/Target Support Files/SnapKit/SnapKit-umbrella.h
+Pods/Target Support Files/SnapKit/SnapKit.debug.xcconfig
+Pods/Target Support Files/SnapKit/SnapKit.modulemap
+Pods/Target Support Files/SnapKit/SnapKit.release.xcconfig
+contents.xcworkspacedata
+IDEWorkspaceChecks.plist
